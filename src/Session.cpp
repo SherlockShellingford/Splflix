@@ -93,18 +93,22 @@ void Session::clear() {
     activeUser = nullptr;
 }
 
-std::vector<Watchable*> Session::getContent(){
+std::vector<Watchable*> Session::getContent() const{
     return content;
 }
 
-std::vector<BaseAction*> Session::getAtionsLog(){
+std::vector<BaseAction*> Session::getAtionsLog() const{
     return actionsLog;
 }
 
-std::unordered_map<std::string, User*> Session::getUserMap(){
+std::unordered_map<std::string, User*> Session::getUserMap() const{
     return userMap;
 }
 
-User* Session::getActiveUser(){
+User* Session::getActiveUser() const{
     return activeUser;
+}
+
+std::vector<std::string> Session::getInput() const{
+    return input;
 }
