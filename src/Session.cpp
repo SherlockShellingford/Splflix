@@ -92,3 +92,19 @@ void Session::clear() {
     delete activeUser;
     activeUser = nullptr;
 }
+
+std::vector<Watchable*> Session::getContent(){
+    return content;
+}
+
+std::vector<BaseAction*> Session::getAtionsLog(){
+    return actionsLog;
+}
+
+std::unordered_map<std::string, User*> Session::getUserMap(){
+    return userMap;
+}
+
+User* Session::getActiveUser(){
+    return activeUser;
+}
