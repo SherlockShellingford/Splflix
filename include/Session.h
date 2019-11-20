@@ -23,6 +23,7 @@ public:
     std::unordered_map<std::string, User*> getUserMap() const;
     User* getActiveUser() const;
     std::vector<std::string> getInput() const;
+    void setActiveUser(User*);
 private:
     std::vector<Watchable*> content;
     std::vector<BaseAction*> actionsLog;
