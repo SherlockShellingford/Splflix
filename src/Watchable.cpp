@@ -5,6 +5,7 @@
 
 
 Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) : id(id), tags() {
+    this->id=id;
     this->length=length;
     for(int i=0;i<tags.size();++i) {
         this->tags.push_back(tags[i]);
