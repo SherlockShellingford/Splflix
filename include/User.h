@@ -5,8 +5,9 @@
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
-class Watchable;
-class Session;
+#include "Watchable.h"
+#include "Session.h"
+
 
 class User{
 public:
@@ -16,10 +17,13 @@ public:
     std::vector<Watchable*> get_history() const;
     static User* createUser(std::string type, std::string name);
     virtual void addWatchable(Watchable* w);
+
 protected:
     std::vector<Watchable*> history;
 private:
     const std::string name;
+
+
 
 };
 
@@ -48,8 +52,13 @@ class GenreRecommenderUser : public User {
 public:
     GenreRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
-
+    virtual void addWatchable(Watchable* w);
 private:
+    std::pair<std::string, int>  getMostPopularTag (Watchable* a);
+    std::string lexo(std::string a, std::string b);
+    bool compareTwoWatchables(std::pair<std::string, int> a,std::pair<std::string, int> b);
+    std::vector<std::string> tags;
+    std::vector<int> tagcount;
 };
 
 #endif

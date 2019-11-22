@@ -3,9 +3,9 @@
 
 #include <string>
 #include <vector>
+#include "Session.h"
 
 
-class Session;
 
 class Watchable{
 public:
@@ -16,7 +16,7 @@ public:
     const long getId() const;
     int getLength() const;
     std::vector<std::string> getTags() const;
-
+    virtual std::string getName() const;
 private:
     const long id;
     int length;
@@ -43,7 +43,7 @@ public:
     int getSeason() const;
     int getEpisode() const;
     int getNextEpisodeId() const;
-
+    virtual std::string getName();
 private:
     std::string seriesName;
     int season;
