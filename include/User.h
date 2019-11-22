@@ -1,8 +1,55 @@
-//
-// Created by esev on 20/11/2019.
-//
+#ifndef USER_H_
+#define USER_H_
 
-#ifndef SPLFLIX_USER_H
-#define SPLFLIX_USER_H
+#include <vector>
+#include <string>
+#include <unordered_set>
+#include <unordered_map>
+class Watchable;
+class Session;
 
-#endif //SPLFLIX_USER_H
+class User{
+public:
+    User(const std::string& name);
+    virtual Watchable* getRecommendation(Session& s) = 0;
+    std::string getName() const;
+    std::vector<Watchable*> get_history() const;
+    static User* createUser(std::string type, std::string name);
+    virtual void addWatchable(Watchable* w);
+protected:
+    std::vector<Watchable*> history;
+private:
+    const std::string name;
+
+};
+
+
+class LengthRecommenderUser : public User {
+public:
+    LengthRecommenderUser(const std::string& name);
+    virtual Watchable* getRecommendation(Session& s);
+
+private:
+    int abs(int x);
+    int avg;
+
+};
+
+class RerunRecommenderUser : public User {
+public:
+    RerunRecommenderUser(const std::string& name);
+    virtual Watchable* getRecommendation(Session& s);
+
+private:
+    int index;
+};
+
+class GenreRecommenderUser : public User {
+public:
+    GenreRecommenderUser(const std::string& name);
+    virtual Watchable* getRecommendation(Session& s);
+
+private:
+};
+
+#endif
