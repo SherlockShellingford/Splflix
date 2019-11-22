@@ -112,3 +112,7 @@ User* Session::getActiveUser() const{
 std::vector<std::string> Session::getInput() const{
     return input;
 }
+
+void Session::setActiveUser(User* other){
+    activeUser = other;
+}
