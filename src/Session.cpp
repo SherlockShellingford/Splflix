@@ -66,6 +66,52 @@ Session& Session::operator=(Session&& other) {
     }
 
     return *this;
+}   //move assignment operator
+
+void Session::start() {
+    while(true){
+        std::string in;
+        std::getline(std::cin, in);
+        int  s = 0;
+        for (int i = 0; i < in.length(); ++i) {
+            if (in[i] == ' '){
+                input.push_back(in.substr(s, i-s));
+                s = i + 1;
+            }
+        }
+        input.push_back(in.substr(s, in.length()-s));
+        if (input[0] == "createuser"){
+            createU();
+        }
+        else if (input[0] == "changeuser"){
+            changeU();
+        }
+        else if (input[0] == "deleteuser"){
+            deleteU();
+        }
+        else if (input[0] == "dupuser"){
+            dupU();
+        }
+        else if (input[0] == "content"){
+            cont();
+        }
+        else if (input[0] == "watchhist"){
+            hist();
+        }
+        else if (input[0] == "watch"){
+            wat();
+        }
+        else if (input[0] == "log"){
+            log();
+        }
+        else if (input[0] == "exit"){
+            exit();
+            break;
+        }
+        else{
+            printf("No such command");
+        }
+    }
 }
 
 void Session::copy(const Session& other){
@@ -97,7 +143,7 @@ std::vector<Watchable*> Session::getContent() const{
     return content;
 }
 
-std::vector<BaseAction*> Session::getAtionsLog() const{
+std::vector<BaseAction*> Session::getActionsLog() const{
     return actionsLog;
 }
 
@@ -115,4 +161,49 @@ std::vector<std::string> Session::getInput() const{
 
 void Session::setActiveUser(User* other){
     activeUser = other;
+}
+
+void Session::createU(){
+    CreateUser *action = new CreateUser();
+    action->act(*this);
+}
+
+void Session::changeU(){
+    ChangeActiveUser *action = new ChangeActiveUser();
+    action->act(*this);
+}
+
+void Session::deleteU(){
+    DeleteUser *action = new DeleteUser();
+    action->act(*this);
+}
+
+void Session::dupU(){
+    DuplicateUser *action = new DuplicateUser();
+    action->act(*this);
+}
+
+void Session::cont(){
+    PrintContentList *action = new PrintContentList();
+    action->act(*this);
+}
+
+void Session::hist(){
+    PrintWatchHistory *action = new PrintWatchHistory();
+    action->act(*this);
+}
+
+void Session::wat(){
+    Watch *action = new Watch();
+    action->act(*this);
+}
+
+void Session::log(){
+    PrintActionsLog *action = new PrintActionsLog();
+    action->act(*this);
+}
+
+void Session::exit(){
+    Exit *action = new Exit();
+    action->act(*this);
 }
