@@ -19,7 +19,7 @@ public:
     Session& operator=(Session&&);
     void start();
     std::vector<Watchable*> getContent() const;
-    std::vector<BaseAction*> getAtionsLog() const;
+    std::vector<BaseAction*> getActionsLog() const;
     std::unordered_map<std::string, User*> getUserMap() const;
     User* getActiveUser() const;
     std::vector<std::string> getInput() const;
@@ -32,5 +32,14 @@ private:
     void copy(const Session& other);
     void clear();
     std::vector<std::string> input;
+    void createU();
+    void changeU();
+    void deleteU();
+    void dupU();
+    void cont();
+    void hist();
+    void wat();
+    void log();
+    void exit();
 };
 #endif
