@@ -39,7 +39,7 @@ std::string Movie::toString() const {
     std::vector<std::string> temp=this->getTags();
     std::string* t=new std::string[temp.size()];
     std::string ret;
-    ret = "" + this->getId() + ". " + this->name + " " + this->getLength() + " minutes [";
+    ret.append("" + this->getId());  ret.append( ". " ); ret.append( this->name );ret.append( " "); ret.append( ""+ this->getLength()); ret+= " minutes [";
     for(int i=0;i<temp.size();++i){
         ret+=t[i]+", ";
     }
@@ -77,7 +77,7 @@ std::string Episode::getSeriesname() const {
 std::string Episode::toString() const {
     std::vector<std::string> temp=this->getTags();
     std::string* t=new std::string[temp.size()];
-    std::string ret=""+this->getId()+". "+ this->seriesName+" S"+this->season+" E"+this->episode" "+this->getLength()+" minutes [";
+    std::string ret=this->getId()+". "+ this->seriesName+" S";ret.append(""+this->season);ret+=" E"+this->episode;ret +=" "+this->getLength(); ret +=" minutes [";
     for(int i=0;i<temp.size();++i){
         ret+=t[i]+", ";
     }
@@ -93,6 +93,11 @@ Watchable* Episode::getNextWatchable(Session & s) const {
         }
     }
     return nullptr;
+}
+
+std::string Episode::getName() {
+    std::string ret=this->getId()+". "+ this->seriesName+" S";ret.append(""+this->season);ret+=" E"+this->episode;
+    return ret;
 }
 
 
