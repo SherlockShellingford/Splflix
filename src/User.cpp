@@ -47,7 +47,7 @@ LengthRecommenderUser::LengthRecommenderUser(const std::string &name) :User(name
 
 Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
 
-    Watchable* next=history[history.size()-1].getNextWatchable();
+    Watchable* next=history[history.size()-1]->getNextWatchable(s);
     if(next != nullptr){
 
         return next;
@@ -160,7 +160,7 @@ std::string GenreRecommenderUser::lexo(std::string a, std::string b) {
         return b;
     }
 }
-std::pair<std::string,int> GenreRecommenderUser::getMostPopularTag(Watchable *a)  {
+std::pair<std::string,int> GenreRecommenderUser::getMostPopularTag( const Watchable *a)  {
     std::string populartaga=a->getTags()[0];
     int maxcount=0;
     std::vector<std::string> tempa=a->getTags();
@@ -207,9 +207,11 @@ Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
     }
 
     std::vector<Watchable*> content=s.getContent();
-    std::vector<std::pair<Watchable*,std::pair<std::string, int>>> prioritylist;
-    for( Watchable* watchable: content){
-        prioritylist.push_back(std::pair<watchable,this->getMostPopularTag(watchable))
+    std::vector<std::pair< Watchable*,std::pair<std::string, int>>> prioritylist;
+    for(  Watchable* watchable: content){
+        std::pair<std::string, int> populartagpair=this->getMostPopularTag(watchable);
+        std::pair< Watchable*, std::pair<std::string, int>> toaddtopriority(watchable,populartagpair);
+        prioritylist.push_back(toaddtopriority);
     }
     for(int j=0;j<prioritylist.size();++j) {
         int index=j;
@@ -224,7 +226,7 @@ Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
                 index = i;
             }
         }
-        std::pair<Watchable*,std::pair<std::string, int>> switcher=prioritylist[j];
+        std::pair< Watchable*,std::pair<std::string, int>> switcher=prioritylist[j];
         prioritylist[j]=prioritylist[index];
         prioritylist[index]=switcher;
     }

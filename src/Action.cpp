@@ -103,7 +103,7 @@ std::string DuplicateUser::toString() const{
 
 void PrintContentList::act(Session& sess){
     for (Watchable* w : sess.getContent()) {
-        printf((w->toString()).c_str());
+        printf("%s", (w->toString()).c_str());
     }
     complete();
 }
@@ -116,9 +116,14 @@ std::string PrintContentList::toString() const{
 }
 
 void PrintWatchHistory::act(Session& sess){
-    printf("Watch history for " + *(sess.getActiveUser()->getName()).c_str());
+    std::string string = "Watch history for ";
+    string.append((sess.getActiveUser()->getName()));
+    printf("%s",string.c_str());
     for (Watchable* w : sess.getActiveUser()->get_history()) {
-        printf((w->getId()) + " " + *w->getName().c_str());
+        string = w->getId();
+        string.append(" ");
+        string.append(w->getName().c_str());
+        printf("%s", string.c_str());
     }
     complete();
 }
@@ -131,9 +136,14 @@ std::string PrintWatchHistory::toString() const{
 }
 
 void Watch::act(Session& sess){
-    printf("Watching " + *sess.getContent()[atoi((sess.getInput()[sess.getInput().size()-1]).c_str())]->getName().c_str());
-    sess.getActiveUser()->addWatchable(sess.getContent()[sess.getInput()[sess.getInput().size()-1]]);
-    printf("We recommend watching " + sess.getActiveUser()->getRecommendation(sess) + " continue watching? [y/n]")
+    std::string w = "Watching ";
+    w.append(sess.getContent()[atoi((sess.getInput()[sess.getInput().size()-1]).c_str())]->getName().c_str());
+    printf("%s", w.c_str());
+    sess.getActiveUser()->addWatchable(sess.getContent()[atoi(sess.getInput()[sess.getInput().size()-1].c_str())]);
+    w = "We recommend watching ";
+    w.append(sess.getActiveUser()->getRecommendation(sess)->toString().c_str());
+    w.append(" continue watching? [y/n]");
+    printf("%s", w.c_str());
     complete();
 }
 
@@ -146,7 +156,7 @@ std::string Watch::toString() const{
 
 void PrintActionsLog::act(Session& sess){
     for (BaseAction* a : sess.getActionsLog()) {
-        printf((*a.toString()).c_str());
+        printf("%s", (a->toString()).c_str());
     }
     complete();
 }

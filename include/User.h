@@ -54,7 +54,7 @@ public:
     virtual Watchable* getRecommendation(Session& s);
     virtual void addWatchable(Watchable* w);
 private:
-    std::pair<std::string, int>  getMostPopularTag (Watchable* a);
+    std::pair<std::string, int>  getMostPopularTag ( const Watchable* a);
     std::string lexo(std::string a, std::string b);
     bool compareTwoWatchables(std::pair<std::string, int> a,std::pair<std::string, int> b);
     std::vector<std::string> tags;

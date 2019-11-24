@@ -55,7 +55,7 @@ Episode::Episode(long id, const std::string &seriesName, int length, int season,
                  const std::vector<std::string> &tags): Watchable(id,length,tags) {
     this->season=season;
     this->episode=episode;
-    this->nextEpisodeId=episode+1;
+    this->nextEpisodeId=id+1;
 }
 
 int Episode::getEpisode() const {
