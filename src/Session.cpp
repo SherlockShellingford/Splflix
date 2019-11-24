@@ -2,9 +2,42 @@
 //
 // Created by doorbellman on 19/11/2019.
 //
+#include <fstream>
+#include "../include/Watchable.h"
 #include "../include/Session.h"
+#include "../include/json.hpp"
+using json = nlohmann::json;
 Session::Session(const std::string &configFilePath) {
-
+    std::ifstream  stream(configFilePath);
+    json config;
+    stream >> config;
+    int i = 0;
+    while(config["movies"][i] != nullptr){
+        json m = config["movies"][i];
+        int j = 0;
+        std::vector<std::string> tags;
+        while (m["tags"][j] != nullptr){
+            tags.push_back(m["tags"][j]);
+            j++;
+        }
+        content.push_back(new Movie((long)i, m["name"], m["length"], tags));
+        i++;
+    }
+    while(config["tv_series"][i] != nullptr){
+        json m = config["tv_series"][i];
+        int j = 0;
+        std::vector<std::string> tags;
+        while (m["tags"][j] != nullptr){
+            tags.push_back(m["tags"][j]);
+            j++;
+        }
+        for (int k = 0; m["seasons"][k] != nullptr; ++k) {
+            for (int l = 0; l < m["seasons"][k]; ++l) {
+                content.push_back(new Episode(i, m["name"], m["episode_length"], k, l + 1, tags));
+            }
+            i++;
+        }
+    }
 }
 
 Session& Session::operator=(const Session& other) {

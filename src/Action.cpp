@@ -29,7 +29,7 @@ std::string BaseAction::getErrorMsg() const{
 void CreateUser::act(Session& sess){
     std::string name = sess.getInput()[sess.getInput().size()-2];
     if (sess.getUserMap().find(name) == sess.getUserMap().end()){
-        sess.getUserMap().insert(name, User::createUser(name, sess.getInput()[sess.getInput().size()-1]));   //might need to delete it sometime later
+        sess.getUserMap().insert({name, User::createUser(sess.getInput()[sess.getInput().size()-1], name)}); //might need to delete it sometime later
         complete();
         return;
     }
@@ -83,8 +83,8 @@ void DuplicateUser::act(Session& sess){
     std::string target = sess.getInput()[sess.getInput().size()-1];
     if (sess.getUserMap().find(source) != sess.getUserMap().end()){
         if (sess.getUserMap().find(target) == sess.getUserMap().end()){
-            User* t = new User(sess.getUserMap()[source]);
-            sess.getUserMap().insert(target, t);
+            User* t = User::createUser(sess.getInput()[sess.getInput().size()-1], sess.getUserMap()[source]->getName());
+            sess.getUserMap().insert({target, t});//.insert(target, t);
             complete();
             return;
         }
@@ -103,7 +103,7 @@ std::string DuplicateUser::toString() const{
 
 void PrintContentList::act(Session& sess){
     for (Watchable* w : sess.getContent()) {
-        printf((*w.toString()).c_str());
+        printf((w->toString()).c_str());
     }
     complete();
 }
@@ -116,9 +116,9 @@ std::string PrintContentList::toString() const{
 }
 
 void PrintWatchHistory::act(Session& sess){
-    printf("Watch history for " + sess.getActiveUser());
-    for (Watchable* w : sess.getActiveUser().getWatchHistory()) {
-        printf((w->getId().toString()).c_str() + " " + (w->getName().toString()).c_str());
+    printf("Watch history for " + *(sess.getActiveUser()->getName()).c_str());
+    for (Watchable* w : sess.getActiveUser()->get_history()) {
+        printf((w->getId()) + " " + *w->getName().c_str());
     }
     complete();
 }
@@ -131,7 +131,7 @@ std::string PrintWatchHistory::toString() const{
 }
 
 void Watch::act(Session& sess){
-    printf("Watching " + sess.getContent()[sess.getInput()[sess.getInput().size()-1]]);
+    printf("Watching " + *sess.getContent()[atoi((sess.getInput()[sess.getInput().size()-1]).c_str())]->getName().c_str());
     sess.getActiveUser()->addWatchable(sess.getContent()[sess.getInput()[sess.getInput().size()-1]]);
     printf("We recommend watching " + sess.getActiveUser()->getRecommendation(sess) + " continue watching? [y/n]")
     complete();
