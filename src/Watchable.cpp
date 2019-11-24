@@ -13,6 +13,13 @@ Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) 
 
 
 }
+std::string Watchable::getName() const {
+    return nullptr;
+}
+
+Watchable::~Watchable() {
+
+}
 
 const long Watchable::getId() const {
     return this->id;
@@ -39,9 +46,15 @@ std::string Movie::toString() const {
     std::vector<std::string> temp=this->getTags();
     std::string* t=new std::string[temp.size()];
     std::string ret;
-    ret.append("" + this->getId());  ret.append( ". " ); ret.append( this->name );ret.append( " "); ret.append( ""+ this->getLength()); ret+= " minutes [";
+    ;
+    ret+=std::to_string(this->getId());
+    ret+=". ";
+    ret+=""+this->name ;
+    ret+=" ";
+    ret+=std::to_string(this->getLength());
+    ret+= " minutes [";
     for(int i=0;i<temp.size();++i){
-        ret+=t[i]+", ";
+        ret+=temp[i]+", ";
     }
     ret+="]";
     return ret;
@@ -77,9 +90,13 @@ std::string Episode::getSeriesname() const {
 std::string Episode::toString() const {
     std::vector<std::string> temp=this->getTags();
     std::string* t=new std::string[temp.size()];
-    std::string ret=this->getId()+". "+ this->seriesName+" S";ret.append(""+this->season);ret+=" E"+this->episode;ret +=" "+this->getLength(); ret +=" minutes [";
+    std::string ret=std::to_string(this->getId())+". "+ this->seriesName+" S";
+    ret+=""+std::to_string(this->season);
+    ret+=" E"+ std::to_string(this->episode);
+    ret +=" "+std::to_string(this->getLength());
+    ret +=" minutes [";
     for(int i=0;i<temp.size();++i){
-        ret+=t[i]+", ";
+        ret+=temp[i]+", ";
     }
     ret+="]";
     return ret;

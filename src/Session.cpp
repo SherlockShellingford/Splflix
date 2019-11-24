@@ -5,6 +5,7 @@
 #include <fstream>
 #include "../include/Watchable.h"
 #include "../include/Session.h"
+#include "../include/User.h"
 #include "../include/json.hpp"
 using json = nlohmann::json;
 Session::Session(const std::string &configFilePath) {
@@ -23,8 +24,9 @@ Session::Session(const std::string &configFilePath) {
         content.push_back(new Movie((long)i, m["name"], m["length"], tags));
         i++;
     }
-    while(config["tv_series"][i] != nullptr){
-        json m = config["tv_series"][i];
+    int c = 0;
+    while(config["tv_series"][c] != nullptr){
+        json m = config["tv_series"][c];
         int j = 0;
         std::vector<std::string> tags;
         while (m["tags"][j] != nullptr){
@@ -36,6 +38,7 @@ Session::Session(const std::string &configFilePath) {
                 content.push_back(new Episode(i, m["name"], m["episode_length"], k, l + 1, tags));
             }
             i++;
+            c++;
         }
     }
 }
@@ -102,6 +105,8 @@ Session& Session::operator=(Session&& other) {
 }   //move assignment operator
 
 void Session::start() {
+    printf("SPLFLIX is now on!\n");
+    this->activeUser=User::createUser("len", "");
     while(true){
         std::string in;
         std::getline(std::cin, in);
@@ -112,6 +117,8 @@ void Session::start() {
                 s = i + 1;
             }
         }
+        //Omer ata tembel TODO Make default user
+
         input.push_back(in.substr(s, in.length()-s));
         if (input[0] == "createuser"){
             createU();
@@ -185,7 +192,7 @@ std::unordered_map<std::string, User*> Session::getUserMap() const{
 }
 
 User* Session::getActiveUser() const{
-    return activeUser;
+    return this->activeUser;
 }
 
 std::vector<std::string> Session::getInput() const{

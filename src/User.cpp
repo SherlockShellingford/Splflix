@@ -19,13 +19,13 @@ std::vector<Watchable*> User::get_history() const {
 }
 
 User* User::createUser(std::string type, std::string name ) {
-    if(type.compare("len")){
+    if(type=="len"){
         return new LengthRecommenderUser(name);
     }
-    if(type.compare("rer")){
+    if(type=="rer"){
         return new RerunRecommenderUser(name);
     }
-    if(type.compare("gen")){
+    if(type=="gen"){
         return new GenreRecommenderUser(name);
     }
 
@@ -130,7 +130,7 @@ void GenreRecommenderUser::addWatchable(Watchable *w) {
         bool toadd=true;
         int index=-1;
         for(int i=0;i<this->tags.size();++i){
-            if(this->tags[i].compare(tag)){
+            if(this->tags[i]==tag){
                 toadd=false;
                 index=i;
             }
