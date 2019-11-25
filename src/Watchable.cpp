@@ -2,7 +2,7 @@
 // Created by esev on 20/11/2019.
 //
 #include "../include/Watchable.h"
-
+//todo: delete the , in the end of the toString
 
 Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) : id(id), tags() {
 
@@ -66,6 +66,7 @@ Watchable* Movie::getNextWatchable(Session&) const {
 
 Episode::Episode(long id, const std::string &seriesName, int length, int season, int episode,
                  const std::vector<std::string> &tags): Watchable(id,length,tags) {
+    this->seriesName=seriesName;
     this->season=season;
     this->episode=episode;
     this->nextEpisodeId=id+1;
@@ -112,8 +113,10 @@ Watchable* Episode::getNextWatchable(Session & s) const {
     return nullptr;
 }
 
-std::string Episode::getName() {
-    std::string ret=this->getId()+". "+ this->seriesName+" S";ret.append(""+this->season);ret+=" E"+this->episode;
+std::string Episode::getName() const {
+    std::string ret=std::to_string(this->getId())+". "+ this->seriesName+" S";
+    ret+=(""+std::to_string(this->season));
+    ret+=" E"+std::to_string(this->episode);
     return ret;
 }
 

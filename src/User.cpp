@@ -45,6 +45,11 @@ int LengthRecommenderUser::abs(int x) {
 }
 LengthRecommenderUser::LengthRecommenderUser(const std::string &name) :User(name) {}
 
+
+void LengthRecommenderUser::addWatchable(Watchable *w) {
+    this->history.push_back(w);
+    avg=((avg*(this->history.size()-1))+w->getLength())/this->history.size();
+}
 Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
 
     Watchable* next=history[history.size()-1]->getNextWatchable(s);
@@ -74,7 +79,7 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
 
         for (int i = j; i < temp.size(); ++i) {
             int t = abs(this->avg - temp[i]->getLength());
-            if (t <= min && temp[i] < temp[index]) {
+            if (t < min || (t==min && temp[index]->getId()>temp[j]->getId())) {
                 min = t;
                 index = i;
             }

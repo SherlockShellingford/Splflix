@@ -43,7 +43,7 @@ public:
     int getSeason() const;
     int getEpisode() const;
     int getNextEpisodeId() const;
-    virtual std::string getName();
+    std::string getName() const;
 private:
     std::string seriesName;
     int season;

@@ -21,7 +21,7 @@ Session::Session(const std::string &configFilePath) {
             tags.push_back(m["tags"][j]);
             j++;
         }
-        content.push_back(new Movie((long)i, m["name"], m["length"], tags));
+        content.push_back(new Movie((long)i + 1, m["name"], m["length"], tags));
         i++;
     }
     int c = 0;
@@ -35,9 +35,9 @@ Session::Session(const std::string &configFilePath) {
         }
         for (int k = 0; m["seasons"][k] != nullptr; ++k) {
             for (int l = 0; l < m["seasons"][k]; ++l) {
-                content.push_back(new Episode(i, m["name"], m["episode_length"], k, l + 1, tags));
+                content.push_back(new Episode(i + 1, m["name"], m["episode_length"], k, l + 1, tags));
+                i++;
             }
-            i++;
             c++;
         }
     }
@@ -108,6 +108,7 @@ void Session::start() {
     printf("SPLFLIX is now on!\n");
     this->activeUser=User::createUser("len", "");
     while(true){
+        input.clear();
         std::string in;
         std::getline(std::cin, in);
         int  s = 0;
@@ -117,8 +118,6 @@ void Session::start() {
                 s = i + 1;
             }
         }
-        //Omer ata tembel TODO Make default user
-
         input.push_back(in.substr(s, in.length()-s));
         if (input[0] == "createuser"){
             createU();
@@ -149,7 +148,7 @@ void Session::start() {
             break;
         }
         else{
-            printf("No such command");
+            printf("No such command\n");
         }
     }
 }
@@ -234,8 +233,21 @@ void Session::hist(){
 }
 
 void Session::wat(){
-    Watch *action = new Watch();
-    action->act(*this);
+    std::string in;
+    do {
+        printf("\n");
+        Watch *action = new Watch();
+        action->act(*this);
+        std::string w;
+        w = "We recommend watching ";
+        Watchable* rec = this->activeUser->getRecommendation(*this);
+        w.append(rec->toString().c_str());
+        w.append(" continue watching? [y/n]\n");
+        printf("%s", w.c_str());
+        std::getline(std::cin, in);
+        this->input[this->input.size() - 1] = std::to_string(rec->getId());
+    }
+    while (in == "y" || in == "Y");
 }
 
 void Session::log(){

@@ -103,7 +103,7 @@ std::string DuplicateUser::toString() const{
 
 void PrintContentList::act(Session& sess){
     for (Watchable* w : sess.getContent()) {
-        printf("%s", (w->toString()).c_str());
+        printf("%s\n", (w->toString()).c_str());
     }
     complete();
 }
@@ -137,13 +137,10 @@ std::string PrintWatchHistory::toString() const{
 
 void Watch::act(Session& sess){
     std::string w = "Watching ";
+
     w.append(sess.getContent()[atoi((sess.getInput()[sess.getInput().size()-1]).c_str())]->getName().c_str());
-    printf("%s", w.c_str());
+    printf("%s\n", w.c_str());
     sess.getActiveUser()->addWatchable(sess.getContent()[atoi(sess.getInput()[sess.getInput().size()-1].c_str())]);
-    w = "We recommend watching ";
-    w.append(sess.getActiveUser()->getRecommendation(sess)->toString().c_str());
-    w.append(" continue watching? [y/n]");
-    printf("%s", w.c_str());
     complete();
 }
 
