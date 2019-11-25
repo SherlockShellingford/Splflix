@@ -90,7 +90,7 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
     }
     for(int i=0;i<temp.size();++i){
         bool didntwatchedalready=true;
-        for(int j=0;j<this->history.size()-1;++j){
+        for(int j=0;j<this->history.size();++j){
             if(temp[i]->getId()==history[j]->getId()){
                 didntwatchedalready=false;
             }
@@ -161,9 +161,10 @@ std::string GenreRecommenderUser::lexo(std::string a, std::string b) {
             return b;
         }
     }
-    if(b.length()>a.length()){
+    if(b.length()>=a.length()){
         return b;
     }
+
 }
 std::pair<std::string,int> GenreRecommenderUser::getMostPopularTag( const Watchable *a)  {
     std::string populartaga=a->getTags()[0];
@@ -189,16 +190,19 @@ std::pair<std::string,int> GenreRecommenderUser::getMostPopularTag( const Watcha
 }
 
 bool GenreRecommenderUser::compareTwoWatchables(std::pair<std::string, int> a, std::pair<std::string, int> b) {
+    if (a.first==b.first){
+        return false;
+    }
     if(a.second>b.second){
         return true;
     }
     if(b.second>a.second){
         return false;
     }
-
-    if(lexo(a.first,b.first)==a.first){
+    if (lexo(a.first,b.first)== a.first){
         return true;
     }
+
     return false;
 }
 
@@ -220,13 +224,13 @@ Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
     }
     for(int j=0;j<prioritylist.size();++j) {
         int index=j;
-        std::pair<std::string, int> min=prioritylist[0].second;
+        std::pair<std::string, int> min=prioritylist[j].second;
 
 
 
 
         for (int i = j; i < prioritylist.size(); ++i) {
-            if (this->compareTwoWatchables(prioritylist[i].second, min)) {
+            if (this->compareTwoWatchables(prioritylist[i].second, min)||(prioritylist[i].second.first==min.first&&prioritylist[i].first->getId()<prioritylist[index].first->getId())) {
                 min = prioritylist[i].second;
                 index = i;
             }
@@ -237,7 +241,7 @@ Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
     }
     for(int i=0;i<prioritylist.size();++i){
         bool didntwatchedalready=true;
-        for(int j=0;j<this->history.size()-1;++j){
+        for(int j=0;j<this->history.size();++j){
             if(prioritylist[i].first->getId()==history[j]->getId()){
                 didntwatchedalready=false;
             }

@@ -38,8 +38,8 @@ Session::Session(const std::string &configFilePath) {
                 content.push_back(new Episode(i + 1, m["name"], m["episode_length"], k, l + 1, tags));
                 i++;
             }
-            c++;
         }
+        c++;
     }
 }
 
@@ -174,7 +174,6 @@ void Session::clear() {
         userMap.erase(s.first);
     }
     userMap.clear();
-    delete activeUser;
     activeUser = nullptr;
 }
 
@@ -258,4 +257,16 @@ void Session::log(){
 void Session::exit(){
     Exit *action = new Exit();
     action->act(*this);
+}
+
+void Session::addUser(std::string name, User* u){
+    this->userMap.insert({name, User::createUser(this->getInput()[this->getInput().size()-1], name)});
+}
+
+void Session::removeUser(std::string name){
+    this->userMap.erase(name);
+}
+
+void Session::addLog(BaseAction* action){
+    this->actionsLog.push_back(action);
 }

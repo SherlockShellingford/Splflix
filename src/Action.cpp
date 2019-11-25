@@ -29,11 +29,13 @@ std::string BaseAction::getErrorMsg() const{
 void CreateUser::act(Session& sess){
     std::string name = sess.getInput()[sess.getInput().size()-2];
     if (sess.getUserMap().find(name) == sess.getUserMap().end()){
-        sess.getUserMap().insert({name, User::createUser(sess.getInput()[sess.getInput().size()-1], name)}); //might need to delete it sometime later
+        sess.addUser(name, User::createUser(sess.getInput()[sess.getInput().size()-1], name));// //might need to delete it sometime later
         complete();
+        sess.addLog(this);
         return;
     }
     error("This user already exists");
+    sess.addLog(this);
 }
 
 std::string CreateUser::toString() const{
@@ -48,10 +50,12 @@ void ChangeActiveUser::act(Session& sess){
     if (sess.getUserMap().find(name) != sess.getUserMap().end()){
         sess.setActiveUser(sess.getUserMap()[name]);
         complete();
+        sess.addLog(this);
         return;
     }
     error("There is no such user");
-}
+    sess.addLog(this);
+}//todo: terminate called after throwing an instance of 'std::bad_alloc' what():  std::bad_alloc
 
 std::string ChangeActiveUser::toString() const{
     if (getStatus() == COMPLETED){
@@ -63,12 +67,14 @@ std::string ChangeActiveUser::toString() const{
 void DeleteUser::act(Session& sess){
     std::string name = sess.getInput()[sess.getInput().size()-1];
     if (sess.getUserMap().find(name) != sess.getUserMap().end()){
-        delete sess.getUserMap()[name];
+        sess.removeUser(name);//delete sess.getUserMap()[name];
         sess.getUserMap().erase(name);
         complete();
+        sess.addLog(this);
         return;
     }
     error("There is no such user");
+    sess.addLog(this);
 }
 
 std::string DeleteUser::toString() const{
@@ -84,14 +90,17 @@ void DuplicateUser::act(Session& sess){
     if (sess.getUserMap().find(source) != sess.getUserMap().end()){
         if (sess.getUserMap().find(target) == sess.getUserMap().end()){
             User* t = User::createUser(sess.getInput()[sess.getInput().size()-1], sess.getUserMap()[source]->getName());
-            sess.getUserMap().insert({target, t});//.insert(target, t);
+            sess.addUser(target, t);//sess.getUserMap().insert({target, t});//.insert(target, t);
             complete();
+            sess.addLog(this);
             return;
         }
         error("User " + target + " exists already");
+        sess.addLog(this);
         return;
     }
     error("User " + source + " does not exist");
+    sess.addLog(this);
 }
 
 std::string DuplicateUser::toString() const{
@@ -106,6 +115,7 @@ void PrintContentList::act(Session& sess){
         printf("%s\n", (w->toString()).c_str());
     }
     complete();
+    sess.addLog(this);
 }
 
 std::string PrintContentList::toString() const{
@@ -123,9 +133,10 @@ void PrintWatchHistory::act(Session& sess){
         string = w->getId();
         string.append(" ");
         string.append(w->getName().c_str());
-        printf("%s", string.c_str());
+        printf("%s\n", string.c_str());
     }
     complete();
+    sess.addLog(this);
 }
 
 std::string PrintWatchHistory::toString() const{
@@ -138,10 +149,11 @@ std::string PrintWatchHistory::toString() const{
 void Watch::act(Session& sess){
     std::string w = "Watching ";
 
-    w.append(sess.getContent()[atoi((sess.getInput()[sess.getInput().size()-1]).c_str())]->getName().c_str());
+    w.append(sess.getContent()[atoi((sess.getInput()[sess.getInput().size()-1]).c_str()) - 1]->getName().c_str());
     printf("%s\n", w.c_str());
-    sess.getActiveUser()->addWatchable(sess.getContent()[atoi(sess.getInput()[sess.getInput().size()-1].c_str())]);
+    sess.getActiveUser()->addWatchable(sess.getContent()[atoi(sess.getInput()[sess.getInput().size()-1].c_str()) - 1]);
     complete();
+    sess.addLog(this);
 }
 
 std::string Watch::toString() const{
@@ -153,9 +165,10 @@ std::string Watch::toString() const{
 
 void PrintActionsLog::act(Session& sess){
     for (BaseAction* a : sess.getActionsLog()) {
-        printf("%s", (a->toString()).c_str());
+        printf("%s\n", (a->toString()).c_str());
     }
     complete();
+    sess.addLog(this);
 }
 
 std::string PrintActionsLog::toString() const{
@@ -167,6 +180,7 @@ std::string PrintActionsLog::toString() const{
 
 void Exit::act(Session& sess){
     complete();
+    sess.addLog(this);
 }
 
 std::string Exit::toString() const{

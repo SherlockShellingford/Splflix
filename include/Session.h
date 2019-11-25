@@ -24,6 +24,9 @@ public:
     User* getActiveUser() const;
     std::vector<std::string> getInput() const;
     void setActiveUser(User*);
+    void addUser(std::string, User*);
+    void removeUser(std::string);
+    void addLog(BaseAction*);
 private:
     std::vector<Watchable*> content;
     std::vector<BaseAction*> actionsLog;
