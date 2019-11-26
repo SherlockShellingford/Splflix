@@ -43,7 +43,8 @@ public:
     int getSeason() const;
     int getEpisode() const;
     int getNextEpisodeId() const;
-    virtual std::string getName();
+    std::string getName() const;
+    std::vector<Watchable*> createSeason(long startid, const std::string& seriesName,int length, int season, int episodesnum ,const std::vector<std::string>& tags);
 private:
     std::string seriesName;
     int season;

@@ -19,13 +19,13 @@ std::vector<Watchable*> User::get_history() const {
 }
 
 User* User::createUser(std::string type, std::string name ) {
-    if(type.compare("len")){
+    if(type=="len"){
         return new LengthRecommenderUser(name);
     }
-    if(type.compare("rer")){
+    if(type=="rer"){
         return new RerunRecommenderUser(name);
     }
-    if(type.compare("gen")){
+    if(type=="gen"){
         return new GenreRecommenderUser(name);
     }
 
@@ -45,9 +45,15 @@ int LengthRecommenderUser::abs(int x) {
 }
 LengthRecommenderUser::LengthRecommenderUser(const std::string &name) :User(name) {}
 
+
+void LengthRecommenderUser::addWatchable(Watchable *w) {
+    this->history.push_back(w);
+
+    avg=((avg*(this->history.size()-1))+w->getLength())/this->history.size();
+}
 Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
 
-    Watchable* next=history[history.size()-1].getNextWatchable();
+    Watchable* next=history[history.size()-1]->getNextWatchable(s);
     if(next != nullptr){
 
         return next;
@@ -74,7 +80,7 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
 
         for (int i = j; i < temp.size(); ++i) {
             int t = abs(this->avg - temp[i]->getLength());
-            if (t <= min && temp[i] < temp[index]) {
+            if (t < min || (t==min && temp[index]->getId()>temp[i]->getId())) {
                 min = t;
                 index = i;
             }
@@ -85,7 +91,7 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
     }
     for(int i=0;i<temp.size();++i){
         bool didntwatchedalready=true;
-        for(int j=0;j<this->history.size()-1;++j){
+        for(int j=0;j<this->history.size();++j){
             if(temp[i]->getId()==history[j]->getId()){
                 didntwatchedalready=false;
             }
@@ -106,17 +112,17 @@ RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name)
 Watchable* RerunRecommenderUser::getRecommendation(Session &s) {
 
     Watchable* next=history[history.size()-1]->getNextWatchable(s);
-
+    this->index=this->index+1;
     if(next != nullptr){
 
         return next;
     }
-    this->index=this->index+1;
+
     if(history.empty()){
         return nullptr;
     }
 
-    return history[index%this->history.size()];
+    return history[this->index%this->history.size()];
 
 }
 
@@ -130,7 +136,7 @@ void GenreRecommenderUser::addWatchable(Watchable *w) {
         bool toadd=true;
         int index=-1;
         for(int i=0;i<this->tags.size();++i){
-            if(this->tags[i].compare(tag)){
+            if(this->tags[i]==tag){
                 toadd=false;
                 index=i;
             }
@@ -156,11 +162,12 @@ std::string GenreRecommenderUser::lexo(std::string a, std::string b) {
             return b;
         }
     }
-    if(b.length()>a.length()){
+    if(b.length()>=a.length()){
         return b;
     }
+
 }
-std::pair<std::string,int> GenreRecommenderUser::getMostPopularTag(Watchable *a)  {
+std::pair<std::string,int> GenreRecommenderUser::getMostPopularTag( const Watchable *a)  {
     std::string populartaga=a->getTags()[0];
     int maxcount=0;
     std::vector<std::string> tempa=a->getTags();
@@ -184,16 +191,19 @@ std::pair<std::string,int> GenreRecommenderUser::getMostPopularTag(Watchable *a)
 }
 
 bool GenreRecommenderUser::compareTwoWatchables(std::pair<std::string, int> a, std::pair<std::string, int> b) {
+    if (a.first==b.first){
+        return false;
+    }
     if(a.second>b.second){
         return true;
     }
     if(b.second>a.second){
         return false;
     }
-
-    if(lexo(a.first,b.first)==a.first){
+    if (lexo(a.first,b.first)== a.first){
         return true;
     }
+
     return false;
 }
 
@@ -207,30 +217,32 @@ Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
     }
 
     std::vector<Watchable*> content=s.getContent();
-    std::vector<std::pair<Watchable*,std::pair<std::string, int>>> prioritylist;
-    for( Watchable* watchable: content){
-        prioritylist.push_back(std::pair<watchable,this->getMostPopularTag(watchable))
+    std::vector<std::pair< Watchable*,std::pair<std::string, int>>> prioritylist;
+    for(  Watchable* watchable: content){
+        std::pair<std::string, int> populartagpair=this->getMostPopularTag(watchable);
+        std::pair< Watchable*, std::pair<std::string, int>> toaddtopriority(watchable,populartagpair);
+        prioritylist.push_back(toaddtopriority);
     }
     for(int j=0;j<prioritylist.size();++j) {
         int index=j;
-        std::pair<std::string, int> min=prioritylist[0].second;
+        std::pair<std::string, int> min=prioritylist[j].second;
 
 
 
 
         for (int i = j; i < prioritylist.size(); ++i) {
-            if (this->compareTwoWatchables(prioritylist[i].second, min)) {
+            if (this->compareTwoWatchables(prioritylist[i].second, min)||(prioritylist[i].second.first==min.first&&prioritylist[i].first->getId()<prioritylist[index].first->getId())) {
                 min = prioritylist[i].second;
                 index = i;
             }
         }
-        std::pair<Watchable*,std::pair<std::string, int>> switcher=prioritylist[j];
+        std::pair< Watchable*,std::pair<std::string, int>> switcher=prioritylist[j];
         prioritylist[j]=prioritylist[index];
         prioritylist[index]=switcher;
     }
     for(int i=0;i<prioritylist.size();++i){
         bool didntwatchedalready=true;
-        for(int j=0;j<this->history.size()-1;++j){
+        for(int j=0;j<this->history.size();++j){
             if(prioritylist[i].first->getId()==history[j]->getId()){
                 didntwatchedalready=false;
             }

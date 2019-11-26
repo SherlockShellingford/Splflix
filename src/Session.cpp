@@ -2,9 +2,45 @@
 //
 // Created by doorbellman on 19/11/2019.
 //
+#include <fstream>
+#include "../include/Watchable.h"
 #include "../include/Session.h"
+#include "../include/User.h"
+#include "../include/json.hpp"
+using json = nlohmann::json;
 Session::Session(const std::string &configFilePath) {
-
+    std::ifstream  stream(configFilePath);
+    json config;
+    stream >> config;
+    int i = 0;
+    while(config["movies"][i] != nullptr){
+        json m = config["movies"][i];
+        int j = 0;
+        std::vector<std::string> tags;
+        while (m["tags"][j] != nullptr){
+            tags.push_back(m["tags"][j]);
+            j++;
+        }
+        content.push_back(new Movie((long)i + 1, m["name"], m["length"], tags));
+        i++;
+    }
+    int c = 0;
+    while(config["tv_series"][c] != nullptr){
+        json m = config["tv_series"][c];
+        int j = 0;
+        std::vector<std::string> tags;
+        while (m["tags"][j] != nullptr){
+            tags.push_back(m["tags"][j]);
+            j++;
+        }
+        for (int k = 0; m["seasons"][k] != nullptr; ++k) {
+            for (int l = 0; l < m["seasons"][k]; ++l) {
+                content.push_back(new Episode(i + 1, m["name"], m["episode_length"], k, l + 1, tags));
+                i++;
+            }
+        }
+        c++;
+    }
 }
 
 Session& Session::operator=(const Session& other) {
@@ -66,6 +102,55 @@ Session& Session::operator=(Session&& other) {
     }
 
     return *this;
+}   //move assignment operator
+
+void Session::start() {
+    printf("SPLFLIX is now on!\n");
+    this->activeUser=User::createUser("len", "");
+    while(true){
+        input.clear();
+        std::string in;
+        std::getline(std::cin, in);
+        int  s = 0;
+        for (int i = 0; i < in.length(); ++i) {
+            if (in[i] == ' '){
+                input.push_back(in.substr(s, i-s));
+                s = i + 1;
+            }
+        }
+        input.push_back(in.substr(s, in.length()-s));
+        if (input[0] == "createuser"){
+            createU();
+        }
+        else if (input[0] == "changeuser"){
+            changeU();
+        }
+        else if (input[0] == "deleteuser"){
+            deleteU();
+        }
+        else if (input[0] == "dupuser"){
+            dupU();
+        }
+        else if (input[0] == "content"){
+            cont();
+        }
+        else if (input[0] == "watchhist"){
+            hist();
+        }
+        else if (input[0] == "watch"){
+            wat();
+        }
+        else if (input[0] == "log"){
+            log();
+        }
+        else if (input[0] == "exit"){
+            exit();
+            break;
+        }
+        else{
+            printf("No such command\n");
+        }
+    }
 }
 
 void Session::copy(const Session& other){
@@ -89,7 +174,6 @@ void Session::clear() {
         userMap.erase(s.first);
     }
     userMap.clear();
-    delete activeUser;
     activeUser = nullptr;
 }
 
@@ -97,7 +181,7 @@ std::vector<Watchable*> Session::getContent() const{
     return content;
 }
 
-std::vector<BaseAction*> Session::getAtionsLog() const{
+std::vector<BaseAction*> Session::getActionsLog() const{
     return actionsLog;
 }
 
@@ -106,7 +190,7 @@ std::unordered_map<std::string, User*> Session::getUserMap() const{
 }
 
 User* Session::getActiveUser() const{
-    return activeUser;
+    return this->activeUser;
 }
 
 std::vector<std::string> Session::getInput() const{
@@ -115,4 +199,74 @@ std::vector<std::string> Session::getInput() const{
 
 void Session::setActiveUser(User* other){
     activeUser = other;
+}
+
+void Session::createU(){
+    CreateUser *action = new CreateUser();
+    action->act(*this);
+}
+
+void Session::changeU(){
+    ChangeActiveUser *action = new ChangeActiveUser();
+    action->act(*this);
+}
+
+void Session::deleteU(){
+    DeleteUser *action = new DeleteUser();
+    action->act(*this);
+}
+
+void Session::dupU(){
+    DuplicateUser *action = new DuplicateUser();
+    action->act(*this);
+}
+
+void Session::cont(){
+    PrintContentList *action = new PrintContentList();
+    action->act(*this);
+}
+
+void Session::hist(){
+    PrintWatchHistory *action = new PrintWatchHistory();
+    action->act(*this);
+}
+
+void Session::wat(){
+    std::string in;
+    do {
+        printf("\n");
+        Watch *action = new Watch();
+        action->act(*this);
+        std::string w;
+        w = "We recommend watching ";
+        Watchable* rec = this->activeUser->getRecommendation(*this);
+        w.append(rec->toString().c_str());
+        w.append(" continue watching? [y/n]\n");
+        printf("%s", w.c_str());
+        std::getline(std::cin, in);
+        this->input[this->input.size() - 1] = std::to_string(rec->getId());
+    }
+    while (in == "y" || in == "Y");
+}
+
+void Session::log(){
+    PrintActionsLog *action = new PrintActionsLog();
+    action->act(*this);
+}
+
+void Session::exit(){
+    Exit *action = new Exit();
+    action->act(*this);
+}
+
+void Session::addUser(std::string name, User* u){
+    this->userMap.insert({name, User::createUser(this->getInput()[this->getInput().size()-1], name)});
+}
+
+void Session::removeUser(std::string name){
+    this->userMap.erase(name);
+}
+
+void Session::addLog(BaseAction* action){
+    this->actionsLog.push_back(action);
 }
