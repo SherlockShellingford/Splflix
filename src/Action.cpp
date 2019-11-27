@@ -29,11 +29,20 @@ std::string BaseAction::getErrorMsg() const{
 void CreateUser::act(Session& sess){
     std::string name = sess.getInput()[sess.getInput().size()-2];
     if (sess.getUserMap().find(name) == sess.getUserMap().end()){
-        sess.addUser(name, User::createUser(sess.getInput()[sess.getInput().size()-1], name));// //might need to delete it sometime later
+        User* u = User::createUser(sess.getInput()[sess.getInput().size()-1], name);
+        if(u == nullptr){
+            printf("recommendation algorithm is invalid\n");
+            error("recommendation algorithm is invalid");
+            sess.addLog(this);
+            return;
+        }
+        sess.addUser(name, u);
         complete();
+        printf("user created\n");
         sess.addLog(this);
         return;
     }
+    printf("This user already exists\n");
     error("This user already exists");
     sess.addLog(this);
 }
@@ -53,6 +62,7 @@ void ChangeActiveUser::act(Session& sess){
         sess.addLog(this);
         return;
     }
+    printf("There is no such user\n");
     error("There is no such user");
     sess.addLog(this);
 }
@@ -73,6 +83,7 @@ void DeleteUser::act(Session& sess){
         sess.addLog(this);
         return;
     }
+    printf("There is no such user\n");
     error("There is no such user");
     sess.addLog(this);
 }
@@ -96,10 +107,12 @@ void DuplicateUser::act(Session& sess){
             sess.addLog(this);
             return;
         }
+        printf("User %s exists already\n", target.c_str());
         error("User " + target + " exists already");
         sess.addLog(this);
         return;
     }
+    printf("User %s does not exist", source.c_str());
     error("User " + source + " does not exist");
     sess.addLog(this);
 }
