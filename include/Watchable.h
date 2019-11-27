@@ -3,8 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "Session.h"
-
+#include "../include/Session.h"
+class Session;
 
 
 class Watchable{
@@ -44,6 +44,7 @@ public:
     int getEpisode() const;
     int getNextEpisodeId() const;
     std::string getName() const;
+    static std::vector<Watchable*> createSeason(int startid,const std::string& seriesName,int length, int season, int numepisodes ,const std::vector<std::string>& tags);
 private:
     std::string seriesName;
     int season;

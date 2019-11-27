@@ -3,8 +3,9 @@
 
 #include <string>
 #include <iostream>
-
+class User;
 class Session;
+class Watchable;
 
 enum ActionStatus{
 	PENDING, COMPLETED, ERROR
@@ -49,6 +50,9 @@ class DuplicateUser : public BaseAction {
 public:
 	virtual void act(Session & sess);
 	virtual std::string toString() const;
+    static void lenUser(User *, Session&);
+    static void genUser(User *, Session&);
+    static void rerUser(User *, Session&);
 };
 
 class PrintContentList : public BaseAction {

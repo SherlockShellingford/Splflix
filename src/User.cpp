@@ -19,15 +19,17 @@ std::vector<Watchable*> User::get_history() const {
 }
 
 User* User::createUser(std::string type, std::string name ) {
+    User* ret= nullptr;
     if(type=="len"){
-        return new LengthRecommenderUser(name);
+        ret= new LengthRecommenderUser(name);
     }
     if(type=="rer"){
-        return new RerunRecommenderUser(name);
+        ret= new RerunRecommenderUser(name);
     }
     if(type=="gen"){
-        return new GenreRecommenderUser(name);
+        ret= new GenreRecommenderUser(name);
     }
+    return ret;
 
 }
 
@@ -38,17 +40,21 @@ void User::addWatchable(Watchable *w) {
 
 
 int LengthRecommenderUser::abs(int x) {
+
     if(x<0){
         return -x;
     }
     return x;
 }
-LengthRecommenderUser::LengthRecommenderUser(const std::string &name) :User(name) {}
+LengthRecommenderUser::LengthRecommenderUser(const std::string &name) :User(name) {
+    avg=0;
+}
 
 
 void LengthRecommenderUser::addWatchable(Watchable *w) {
     this->history.push_back(w);
-    avg=((avg*(this->history.size()-1))+w->getLength())/this->history.size();
+    auto  historysize=static_cast<int32_t >(this->history.size());
+    avg=((avg*(historysize-1))+w->getLength())/historysize;
 }
 Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
 
@@ -79,7 +85,7 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
 
         for (int i = j; i < temp.size(); ++i) {
             int t = abs(this->avg - temp[i]->getLength());
-            if (t < min || (t==min && temp[index]->getId()>temp[j]->getId())) {
+            if (t < min || (t==min && temp[index]->getId()>temp[i]->getId())) {
                 min = t;
                 index = i;
             }
@@ -102,6 +108,10 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
     return nullptr;
 }
 
+void LengthRecommenderUser::getType(DuplicateUser* action, Session& sess) {
+   action->lenUser(this, sess);
+}
+
 RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name){
     this->index=-1;
 
@@ -111,18 +121,22 @@ RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name)
 Watchable* RerunRecommenderUser::getRecommendation(Session &s) {
 
     Watchable* next=history[history.size()-1]->getNextWatchable(s);
-
+    this->index=this->index+1;
     if(next != nullptr){
 
         return next;
     }
-    this->index=this->index+1;
+
     if(history.empty()){
         return nullptr;
     }
 
     return history[index%this->history.size()];
 
+}
+
+void RerunRecommenderUser::getType(DuplicateUser* action, Session& sess) {
+    action->rerUser(this, sess);
 }
 
 GenreRecommenderUser::GenreRecommenderUser(const std::string &name) : User(name), tags(), tagcount() {
@@ -258,4 +272,6 @@ Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
 
 }
 
-
+void GenreRecommenderUser::getType(DuplicateUser* action, Session& sess) {
+    action->genUser(this, sess);
+}

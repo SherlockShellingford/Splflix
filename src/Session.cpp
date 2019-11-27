@@ -4,7 +4,7 @@
 //
 #include <fstream>
 #include "../include/Watchable.h"
-#include "../include/Session.h"
+#include "../include/Action.h"
 #include "../include/User.h"
 #include "../include/json.hpp"
 using json = nlohmann::json;
@@ -34,10 +34,14 @@ Session::Session(const std::string &configFilePath) {
             j++;
         }
         for (int k = 0; m["seasons"][k] != nullptr; ++k) {
-            for (int l = 0; l < m["seasons"][k]; ++l) {
-                content.push_back(new Episode(i + 1, m["name"], m["episode_length"], k, l + 1, tags));
-                i++;
-            }
+            //for (int l = 0; l < m["seasons"][k]; ++l) {
+            //    content.push_back(new Episode(i + 1, m["name"], m["episode_length"], k, l + 1, tags));
+            //    i++;
+            //}
+            int sLen = m["seasons"][k];
+            std::vector<Watchable*> tmp = Episode::createSeason(i + 1, m["name"], m["episode_length"], k + 1, sLen, tags);
+            this->content.insert(std::end(content), std::begin(tmp), std::end(tmp));
+            i += sLen;
         }
         c++;
     }
@@ -63,7 +67,7 @@ Session::~Session(){    //dont know if this works, there's probably a better way
 }   //destructor
 
 Session::Session(Session&& other)
-    : content(other.content), actionsLog(other.actionsLog), userMap(other.userMap), activeUser(other.activeUser){
+        : content(other.content), actionsLog(other.actionsLog), userMap(other.userMap), activeUser(other.activeUser){
     for (Watchable* w : content) {
         w = nullptr;
     }
@@ -107,6 +111,7 @@ Session& Session::operator=(Session&& other) {
 void Session::start() {
     printf("SPLFLIX is now on!\n");
     this->activeUser=User::createUser("len", "");
+    this->userMap.insert({activeUser->getName(), activeUser});
     while(true){
         input.clear();
         std::string in;
@@ -169,9 +174,8 @@ void Session::clear() {
         delete a;
     }
     actionsLog.clear();
-    for (auto s : userMap) {
+    for (std::pair<std::string, User*> s : userMap) {
         delete s.second;
-        userMap.erase(s.first);
     }
     userMap.clear();
     activeUser = nullptr;
@@ -260,7 +264,7 @@ void Session::exit(){
 }
 
 void Session::addUser(std::string name, User* u){
-    this->userMap.insert({name, User::createUser(this->getInput()[this->getInput().size()-1], name)});
+    this->userMap.insert({name, u});
 }
 
 void Session::removeUser(std::string name){

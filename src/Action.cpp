@@ -55,7 +55,7 @@ void ChangeActiveUser::act(Session& sess){
     }
     error("There is no such user");
     sess.addLog(this);
-}//todo: terminate called after throwing an instance of 'std::bad_alloc' what():  std::bad_alloc
+}
 
 std::string ChangeActiveUser::toString() const{
     if (getStatus() == COMPLETED){
@@ -89,8 +89,9 @@ void DuplicateUser::act(Session& sess){
     std::string target = sess.getInput()[sess.getInput().size()-1];
     if (sess.getUserMap().find(source) != sess.getUserMap().end()){
         if (sess.getUserMap().find(target) == sess.getUserMap().end()){
-            User* t = User::createUser(sess.getInput()[sess.getInput().size()-1], sess.getUserMap()[source]->getName());
-            sess.addUser(target, t);//sess.getUserMap().insert({target, t});//.insert(target, t);
+//            User* t = User::createUser(sess.getUserMap()[source]->getType(), sess.getUserMap()[source]->getName());
+//            sess.addUser(target, t);//sess.getUserMap().insert({target, t});//.insert(target, t);
+            sess.getUserMap()[source]->getType(this, sess);
             complete();
             sess.addLog(this);
             return;
@@ -108,6 +109,30 @@ std::string DuplicateUser::toString() const{
         return "Duplicate user: COMPLETED";
     }
     return "Duplicate user: ERROR - " + getErrorMsg();
+}
+
+void DuplicateUser::lenUser(User* source, Session& sess) {
+    User* t = User::createUser("len", source->getName());
+    sess.addUser(sess.getInput()[sess.getInput().size()-1], t);
+    for (int i = 0; i < source->get_history().size(); ++i) {
+        t->addWatchable(source->get_history()[i]);
+    }
+}
+
+void DuplicateUser::genUser(User* source, Session& sess) {
+    User* t = User::createUser("gen", source->getName());
+    sess.addUser(sess.getInput()[sess.getInput().size()-1], t);
+    for (int i = 0; i < source->get_history().size(); ++i) {
+        t->addWatchable(source->get_history()[i]);
+    }
+}
+
+void DuplicateUser::rerUser(User* source, Session& sess) {
+    User* t = User::createUser("rer", source->getName());
+    sess.addUser(sess.getInput()[sess.getInput().size()-1], t);
+    for (int i = 0; i < source->get_history().size(); ++i) {
+        t->addWatchable(source->get_history()[i]);
+    }
 }
 
 void PrintContentList::act(Session& sess){

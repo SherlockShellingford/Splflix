@@ -4,10 +4,10 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include "Action.h"
-
+class BaseAction;
 class User;
 class Watchable;
+
 
 class Session{
 public:
