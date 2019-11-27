@@ -153,17 +153,17 @@ void GenreRecommenderUser::addWatchable(Watchable *w) {
 std::string GenreRecommenderUser::lexo(std::string a, std::string b) {
     for(int i=0;i<a.length();++i){
         if(i==b.length()){
-            return a;
+            return b;
         }
         if(a[i]>b[i]){
-            return a;
+            return b;
         }
         if(a[i]<b[i]){
-            return b;
+            return a;
         }
     }
     if(b.length()>=a.length()){
-        return b;
+        return a;
     }
 
 }
