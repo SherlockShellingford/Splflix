@@ -5,9 +5,10 @@
 #include "../include/User.h"
 
 
-User::User(const std::string &name): name(name), history() {
+User::User(const std::string &name): history(), name(name) {
 
 }
+User::~User(){}
 
 std::string User::getName() const {
     return name;
@@ -46,8 +47,8 @@ int LengthRecommenderUser::abs(int x) {
     }
     return x;
 }
-LengthRecommenderUser::LengthRecommenderUser(const std::string &name) :User(name) {
-    avg=0;
+LengthRecommenderUser::LengthRecommenderUser(const std::string &name) :User(name), avg(0) {
+    //avg=0;
 }
 
 
@@ -65,17 +66,18 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
     }
 
     std::vector<Watchable*> temp=s.getContent();
-    int index=0;
-    int min=0;
+    
+    //int min=0;
 
     if(!temp.empty()){
-        min =abs(this->avg-temp[0]->getLength());
+	
+        //min =abs(this->avg-temp[0]->getLength());
 
     }
     else{
         return nullptr;
     }
-    for(int j=0;j<temp.size();++j) {
+    for(unsigned int j=0;j<temp.size();++j) {
         int index=j;
         int min=0;
 
@@ -83,7 +85,7 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
         min =abs(this->avg-temp[j]->getLength());
 
 
-        for (int i = j; i < temp.size(); ++i) {
+        for (unsigned int i = j; i < temp.size(); ++i) {
             int t = abs(this->avg - temp[i]->getLength());
             if (t < min || (t==min && temp[index]->getId()>temp[i]->getId())) {
                 min = t;
@@ -94,9 +96,9 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
         temp[j]=temp[index];
         temp[index]=switcher;
     }
-    for(int i=0;i<temp.size();++i){
+    for(unsigned int i=0;i<temp.size();++i){
         bool didntwatchedalready=true;
-        for(int j=0;j<this->history.size();++j){
+        for(unsigned int j=0;j<this->history.size();++j){
             if(temp[i]->getId()==history[j]->getId()){
                 didntwatchedalready=false;
             }
@@ -112,8 +114,8 @@ void LengthRecommenderUser::getType(DuplicateUser* action, Session& sess) {
    action->lenUser(this, sess);
 }
 
-RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name){
-    this->index=-1;
+RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name), index(-1){
+    
 
 }
 
@@ -148,7 +150,7 @@ void GenreRecommenderUser::addWatchable(Watchable *w) {
     for( std::string tag : w->getTags()){
         bool toadd=true;
         int index=-1;
-        for(int i=0;i<this->tags.size();++i){
+        for(unsigned int i=0;i<this->tags.size();++i){
             if(this->tags[i]==tag){
                 toadd=false;
                 index=i;
@@ -164,7 +166,7 @@ void GenreRecommenderUser::addWatchable(Watchable *w) {
     }
 }
 std::string GenreRecommenderUser::lexo(std::string a, std::string b) {
-    for(int i=0;i<a.length();++i){
+    for(unsigned int i=0;i<a.length();++i){
         if(i==b.length()){
             return a;
         }
@@ -178,6 +180,8 @@ std::string GenreRecommenderUser::lexo(std::string a, std::string b) {
     if(b.length()>=a.length()){
         return b;
     }
+	return a;
+	
 
 }
 std::pair<std::string,int> GenreRecommenderUser::getMostPopularTag( const Watchable *a)  {
@@ -186,7 +190,7 @@ std::pair<std::string,int> GenreRecommenderUser::getMostPopularTag( const Watcha
     std::vector<std::string> tempa=a->getTags();
     for(std::string tag : tempa){
         int count=-1;
-        for(int j=0;j<this->tags.size();++j){
+        for(unsigned int j=0;j<this->tags.size();++j){
             if(this->tags[j]==tag){
                 count=this->tagcount[j];
             }
@@ -236,14 +240,14 @@ Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
         std::pair< Watchable*, std::pair<std::string, int>> toaddtopriority(watchable,populartagpair);
         prioritylist.push_back(toaddtopriority);
     }
-    for(int j=0;j<prioritylist.size();++j) {
-        int index=j;
+    for(int unsigned j=0;j<prioritylist.size();++j) {
+        unsigned int index=j;
         std::pair<std::string, int> min=prioritylist[j].second;
 
 
 
 
-        for (int i = j; i < prioritylist.size(); ++i) {
+        for (unsigned int i = j; i < prioritylist.size(); ++i) {
             if (this->compareTwoWatchables(prioritylist[i].second, min)||(prioritylist[i].second.first==min.first&&prioritylist[i].first->getId()<prioritylist[index].first->getId())) {
                 min = prioritylist[i].second;
                 index = i;
@@ -253,9 +257,9 @@ Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
         prioritylist[j]=prioritylist[index];
         prioritylist[index]=switcher;
     }
-    for(int i=0;i<prioritylist.size();++i){
+    for(unsigned int i=0;i<prioritylist.size();++i){
         bool didntwatchedalready=true;
-        for(int j=0;j<this->history.size();++j){
+        for(unsigned int j=0;j<this->history.size();++j){
             if(prioritylist[i].first->getId()==history[j]->getId()){
                 didntwatchedalready=false;
             }

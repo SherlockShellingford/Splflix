@@ -4,10 +4,9 @@
 #include "../include/Action.h"
 #include "../include/Session.h"
 #include "../include/User.h"
-BaseAction::BaseAction() {
-    this->errorMsg = "";
-    this->status = PENDING;
-}
+BaseAction::BaseAction() : errorMsg(""), status(PENDING) {}
+
+BaseAction::~BaseAction() {}
 
 ActionStatus BaseAction::getStatus() const{
     return status;
@@ -127,7 +126,7 @@ std::string DuplicateUser::toString() const{
 void DuplicateUser::lenUser(User* source, Session& sess) {
     User* t = User::createUser("len", source->getName());
     sess.addUser(sess.getInput()[sess.getInput().size()-1], t);
-    for (int i = 0; i < source->get_history().size(); ++i) {
+    for (unsigned int i = 0; i < source->get_history().size(); ++i) {
         t->addWatchable(source->get_history()[i]);
     }
 }
@@ -135,7 +134,7 @@ void DuplicateUser::lenUser(User* source, Session& sess) {
 void DuplicateUser::genUser(User* source, Session& sess) {
     User* t = User::createUser("gen", source->getName());
     sess.addUser(sess.getInput()[sess.getInput().size()-1], t);
-    for (int i = 0; i < source->get_history().size(); ++i) {
+    for (unsigned int i = 0; i < source->get_history().size(); ++i) {
         t->addWatchable(source->get_history()[i]);
     }
 }
@@ -143,7 +142,7 @@ void DuplicateUser::genUser(User* source, Session& sess) {
 void DuplicateUser::rerUser(User* source, Session& sess) {
     User* t = User::createUser("rer", source->getName());
     sess.addUser(sess.getInput()[sess.getInput().size()-1], t);
-    for (int i = 0; i < source->get_history().size(); ++i) {
+    for (unsigned int i = 0; i < source->get_history().size(); ++i) {
         t->addWatchable(source->get_history()[i]);
     }
 }
