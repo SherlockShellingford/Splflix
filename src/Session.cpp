@@ -8,7 +8,9 @@
 #include "../include/User.h"
 #include "../include/json.hpp"
 using json = nlohmann::json;
-Session::Session(const std::string &configFilePath) {
+Session::Session(const std::string &configFilePath) : content(), actionsLog(), userMap(), activeUser(), input() {
+    this->activeUser=User::createUser("len", "");
+    this->userMap.insert({activeUser->getName(), activeUser});
     std::ifstream  stream(configFilePath);
     json config;
     stream >> config;
@@ -47,7 +49,7 @@ Session::Session(const std::string &configFilePath) {
     }
 }
 
-Session& Session::operator=(const Session& other) {
+Session& Session::operator=(const Session& other){
     if (this != &other){
         clear();
         copy(other);
@@ -55,7 +57,7 @@ Session& Session::operator=(const Session& other) {
     return *this;
 }   //copy assignment operator
 
-Session::Session(const Session& other) {
+Session::Session(const Session& other) : content(), actionsLog(), userMap(), activeUser(), input() {
     this->content = other.content;
     this->activeUser = other.activeUser;
     this->userMap = other.userMap;
@@ -67,14 +69,8 @@ Session::~Session(){    //dont know if this works, there's probably a better way
 }   //destructor
 
 Session::Session(Session&& other)
-        : content(other.content), actionsLog(other.actionsLog), userMap(other.userMap), activeUser(other.activeUser){
-    for (Watchable* w : content) {
-        w = nullptr;
-    }
+        : content(other.content), actionsLog(other.actionsLog), userMap(other.userMap), activeUser(other.activeUser), input(){
     content.clear();
-    for (BaseAction* a : actionsLog) {
-        a = nullptr;
-    }
     actionsLog.clear();
     for (auto s : userMap) {
         s.second = nullptr;
@@ -89,13 +85,7 @@ Session& Session::operator=(Session&& other) {
     {
         clear();
         copy(other);
-        for (Watchable* w : content) {
-            w = nullptr;
-        }
         content.clear();
-        for (BaseAction* a : actionsLog) {
-            a = nullptr;
-        }
         actionsLog.clear();
         for (auto s : userMap) {
             s.second = nullptr;
@@ -109,15 +99,14 @@ Session& Session::operator=(Session&& other) {
 }   //move assignment operator
 
 void Session::start() {
+    this->activeUser=userMap[""];
     printf("SPLFLIX is now on!\n");
-    this->activeUser=User::createUser("len", "");
-    this->userMap.insert({activeUser->getName(), activeUser});
     while(true){
         input.clear();
         std::string in;
         std::getline(std::cin, in);
         int  s = 0;
-        for (int i = 0; i < in.length(); ++i) {
+        for (unsigned int i = 0; i < in.length(); ++i) {
             if (in[i] == ' '){
                 input.push_back(in.substr(s, i-s));
                 s = i + 1;
@@ -238,7 +227,6 @@ void Session::hist(){
 void Session::wat(){
     std::string in;
     do {
-        printf("\n");
         Watch *action = new Watch();
         action->act(*this);
         std::string w;
