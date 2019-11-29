@@ -59,9 +59,16 @@ Session& Session::operator=(const Session& other){
 
 Session::Session(const Session& other) : content(), actionsLog(), userMap(), activeUser(), input() {
     this->content = other.content;
-    this->activeUser = other.activeUser;
-    this->userMap = other.userMap;
-    this->actionsLog = other.actionsLog;
+    for (int j = 0; j < other.content.size(); ++j) {
+        this->content.push_back(other.content[j]->copy());
+    }
+    this->activeUser = other.activeUser->copy();
+    for (std::pair<std::string, User*>  p: other.userMap) {
+        this->userMap.insert({p.first, p.second->copy()});
+    }
+    for (int i = 0; i < other.getActionsLog().size(); ++i) {
+        this->actionsLog.push_back(other.actionsLog[i]->copyAction(*this));
+    }
 }   //copy constructor
 
 Session::~Session(){    //dont know if this works, there's probably a better way
@@ -148,7 +155,10 @@ void Session::start() {
 }
 
 void Session::copy(const Session& other){
-    this->content = other.content;
+    for (int i = 0; i < other.content.size(); ++i) {
+        this->content[i]=other.content[i]->copy();
+
+    }
     this->activeUser = other.activeUser;
     this->userMap = other.userMap;
     this->actionsLog = other.actionsLog;

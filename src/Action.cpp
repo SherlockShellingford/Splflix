@@ -25,6 +25,17 @@ std::string BaseAction::getErrorMsg() const{
     return errorMsg;
 }
 
+void BaseAction::copyError(BaseAction * other) {
+    this->errorMsg = other->errorMsg;
+    this->status = other->status;
+}
+
+//BaseAction* BaseAction::copyAction(Session sess) {
+//    BaseAction* action = new aaaaaaaaaaaa();
+//    action->errorMsg = this->errorMsg;
+//    action->status = this->status;
+//}
+
 void CreateUser::act(Session& sess){
     std::string name = sess.getInput()[sess.getInput().size()-2];
     if (sess.getUserMap().find(name) == sess.getUserMap().end()){
@@ -53,6 +64,12 @@ std::string CreateUser::toString() const{
     return "Create user: ERROR - " + getErrorMsg();
 }
 
+BaseAction* CreateUser::copyAction(Session sess) {//todo: create a function in BaseAction that copeis the errormsg and the status
+    CreateUser* action = new CreateUser();
+    action->copyError(this);
+    return action;
+}
+
 void ChangeActiveUser::act(Session& sess){
     std::string name = sess.getInput()[sess.getInput().size()-1];
     if (sess.getUserMap().find(name) != sess.getUserMap().end()){
@@ -71,6 +88,12 @@ std::string ChangeActiveUser::toString() const{
         return "Change active user: COMPLETED";
     }
     return "Change active user: ERROR - " + getErrorMsg();
+}
+
+BaseAction* ChangeActiveUser::copyAction(Session sess) {
+    CreateUser* action = new CreateUser();
+    action->copyError(this);
+    return action;
 }
 
 void DeleteUser::act(Session& sess){
@@ -92,6 +115,12 @@ std::string DeleteUser::toString() const{
         return "Delete user: COMPLETED";
     }
     return "Delete user: ERROR - " + getErrorMsg();
+}
+
+BaseAction* DeleteUser::copyAction(Session sess) {
+    CreateUser* action = new CreateUser();
+    action->copyError(this);
+    return action;
 }
 
 void DuplicateUser::act(Session& sess){
@@ -121,6 +150,12 @@ std::string DuplicateUser::toString() const{
         return "Duplicate user: COMPLETED";
     }
     return "Duplicate user: ERROR - " + getErrorMsg();
+}
+
+BaseAction* DuplicateUser::copyAction(Session sess) {
+    CreateUser* action = new CreateUser();
+    action->copyError(this);
+    return action;
 }
 
 void DuplicateUser::lenUser(User* source, Session& sess) {
@@ -162,6 +197,12 @@ std::string PrintContentList::toString() const{
     return "Print content list: ERROR - " + getErrorMsg();
 }
 
+BaseAction* PrintContentList::copyAction(Session sess) {
+    CreateUser* action = new CreateUser();
+    action->copyError(this);
+    return action;
+}
+
 void PrintWatchHistory::act(Session& sess){
     std::string string = "Watch history for ";
     string.append((sess.getActiveUser()->getName()));
@@ -183,10 +224,16 @@ std::string PrintWatchHistory::toString() const{
     return "Print watch history: ERROR - " + getErrorMsg();
 }
 
+BaseAction* PrintWatchHistory::copyAction(Session sess) {
+    CreateUser* action = new CreateUser();
+    action->copyError(this);
+    return action;
+}
+
 void Watch::act(Session& sess){
     std::string w = "Watching ";
-
-    w.append(sess.getContent()[atoi((sess.getInput()[sess.getInput().size()-1]).c_str()) - 1]->getName().c_str());
+    Watchable* i = sess.getContent()[atoi((sess.getInput()[sess.getInput().size()-1]).c_str()) - 1];
+    w.append(i->getName().c_str());
     printf("%s\n", w.c_str());
     sess.getActiveUser()->addWatchable(sess.getContent()[atoi(sess.getInput()[sess.getInput().size()-1].c_str()) - 1]);
     complete();
@@ -198,6 +245,12 @@ std::string Watch::toString() const{
         return "Watch: COMPLETED";
     }
     return "Watch: ERROR - " + getErrorMsg();
+}
+
+BaseAction* Watch::copyAction(Session sess) {
+    CreateUser* action = new CreateUser();
+    action->copyError(this);
+    return action;
 }
 
 void PrintActionsLog::act(Session& sess){
@@ -215,6 +268,12 @@ std::string PrintActionsLog::toString() const{
     return "Print actions log: ERROR - " + getErrorMsg();
 }
 
+BaseAction* PrintActionsLog::copyAction(Session sess) {
+    CreateUser* action = new CreateUser();
+    action->copyError(this);
+    return action;
+}
+
 void Exit::act(Session& sess){
     complete();
     sess.addLog(this);
@@ -225,4 +284,10 @@ std::string Exit::toString() const{
         return "Exit: COMPLETED";
     }
     return "Exit: ERROR - " + getErrorMsg();
+}
+
+BaseAction* Exit::copyAction(Session sess) {
+    CreateUser* action = new CreateUser();
+    action->copyError(this);
+    return action;
 }

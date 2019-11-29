@@ -22,12 +22,13 @@ public:
     std::string getName() const;
     std::vector<Watchable*> get_history() const;
     static User* createUser(std::string type, std::string name);
+    virtual User* copy();
     virtual void addWatchable(Watchable* w);
     virtual void getType(DuplicateUser*, Session&) = 0;
 protected:
     std::vector<Watchable*> history;
 private:
-    const std::string name;
+    std::string name;
 
 
 
@@ -38,6 +39,7 @@ class LengthRecommenderUser : public User {
 public:
     LengthRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
+    virtual User* copy();
     virtual void addWatchable(Watchable* w);
     virtual void getType(DuplicateUser* , Session&);
 private:
@@ -52,7 +54,7 @@ public:
     RerunRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
     virtual void getType(DuplicateUser*, Session&);
-
+    virtual User* copy();
 private:
     int index;
 };
@@ -62,6 +64,7 @@ public:
     GenreRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
     virtual void addWatchable(Watchable* w);
+    virtual User* copy();
     virtual void getType(DuplicateUser*, Session&);
 private:
     std::pair<std::string, int>  getMostPopularTag ( const Watchable* a);

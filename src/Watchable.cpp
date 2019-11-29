@@ -3,7 +3,7 @@
 //
 #include "../include/Watchable.h"
 //todo: delete the , in the end of the toString
-
+//TODO Make movie and episode copy functions copy the attributes of watchable as well.
 Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) : id(id), tags() {
 
     this->length=length;
@@ -13,6 +13,20 @@ Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) 
 
 
 }
+Watchable::Watchable(Watchable *other) : id(other->id), length(other->length), tags(other->t) {
+
+}
+
+Watchable* Watchable::copy() {
+return this;
+
+}
+
+void Watchable::accept( Session s) const {
+    s.accept(this);
+
+}
+
 std::string Watchable::getName() const {
     return nullptr;
 }
@@ -25,6 +39,9 @@ const long Watchable::getId() const {
     return this->id;
 }
 
+void Movie::copy(Movie *into) {
+    this->name=name;
+}
 int Watchable::getLength() const {
     return this->length;
 }
@@ -38,8 +55,18 @@ Movie::Movie(long id, const std::string &name, int length, const std::vector <st
 
 }
 
+
+void Movie::accept( Session s) const {
+
+    return;
+
+}
 std::string Movie::getName() const {
     return this->name;
+}
+Watchable* Movie::copy() {
+    Movie* ret=new Movie(this->getId(),this->getName(),this->getLength(),this->getTags());
+    return ret;
 }
 
 std::string Movie::toString() const {
@@ -79,9 +106,24 @@ int Episode::getEpisode() const {
 int Episode::getNextEpisodeId() const {
     return nextEpisodeId;
 }
+void Episode::accept(Episode *into, Session s) const {
+    s.acceptwatchable(this);
+    return;
 
+}
+
+void Episode::copy(Episode *into) {
+    into->episode=this->episode;
+    into->season=this->season;
+    into->seriesName=this->seriesName;
+}
 int Episode::getSeason() const {
     return season;
+}
+
+Watchable* Episode::copy() {
+    Episode* ret=new Episode(this->getId(),this->getName(),this->getLength(), this->getSeason(),this->getEpisode(),this->getTags());
+    return ret;
 }
 
 std::string Episode::getSeriesname() const {

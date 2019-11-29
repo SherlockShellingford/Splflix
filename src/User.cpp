@@ -9,7 +9,9 @@ User::User(const std::string &name): history(), name(name) {
 
 }
 User::~User(){}
-
+User* User::copy() {
+return this;
+}
 std::string User::getName() const {
     return name;
 }
@@ -51,6 +53,14 @@ LengthRecommenderUser::LengthRecommenderUser(const std::string &name) :User(name
     //avg=0;
 }
 
+User* LengthRecommenderUser::copy() {
+    LengthRecommenderUser* ret=new LengthRecommenderUser(this->getName());
+    for(unsigned int i=0;i<this->history.size();++i){
+        ret->history.push_back(this->history[i]->copy());
+    }
+    ret->avg=this->avg;
+    return ret;
+}
 
 void LengthRecommenderUser::addWatchable(Watchable *w) {
     this->history.push_back(w);
@@ -119,7 +129,14 @@ RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name)
 
 }
 
-
+User* RerunRecommenderUser::copy() {
+    RerunRecommenderUser* ret=new RerunRecommenderUser(this->getName());
+    for(unsigned int i=0;i<this->history.size();++i){
+        ret->history.push_back(this->history[i]->copy());
+    }
+    ret->index=this->index;
+    return ret;
+}
 Watchable* RerunRecommenderUser::getRecommendation(Session &s) {
 
     Watchable* next=history[history.size()-1]->getNextWatchable(s);
@@ -217,11 +234,8 @@ bool GenreRecommenderUser::compareTwoWatchables(std::pair<std::string, int> a, s
     if(b.second>a.second){
         return false;
     }
-    if (lexo(a.first,b.first)== a.first){
-        return true;
-    }
+    return lexo(a.first, b.first) == a.first;
 
-    return false;
 }
 
 Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
@@ -273,9 +287,19 @@ Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
 
 
 
-
 }
 
+
+User* GenreRecommenderUser::copy() {
+    GenreRecommenderUser* ret=new GenreRecommenderUser(this->getName());
+    for(unsigned int i=0;i<this->history.size();++i){
+        ret->history.push_back(this->history[i]->copy());
+    }
+    ret->tags=this->tags;
+
+    ret->tagcount=this->tagcount;
+    return ret;
+}
 void GenreRecommenderUser::getType(DuplicateUser* action, Session& sess) {
     action->genUser(this, sess);
 }

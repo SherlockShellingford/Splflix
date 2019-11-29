@@ -19,6 +19,8 @@ public:
 	ActionStatus getStatus() const;
 	virtual void act(Session& sess)=0;
 	virtual std::string toString() const=0;
+	virtual BaseAction* copyAction(Session) = 0;
+	void copyError(BaseAction*);
 protected:
 	void complete();
 	void error(const std::string& errorMsg);
@@ -32,18 +34,21 @@ class CreateUser  : public BaseAction {
 public:
     virtual void act(Session& sess);
 	virtual std::string toString() const;
+    virtual BaseAction* copyAction(Session);
 };
 
 class ChangeActiveUser : public BaseAction {
 public:
 	virtual void act(Session& sess);
 	virtual std::string toString() const;
+    virtual BaseAction* copyAction(Session);
 };
 
 class DeleteUser : public BaseAction {
 public:
 	virtual void act(Session & sess);
 	virtual std::string toString() const;
+    virtual BaseAction* copyAction(Session);
 };
 
 
@@ -54,18 +59,21 @@ public:
     static void lenUser(User *, Session&);
     static void genUser(User *, Session&);
     static void rerUser(User *, Session&);
+    virtual BaseAction* copyAction(Session);
 };
 
 class PrintContentList : public BaseAction {
 public:
 	virtual void act (Session& sess);
 	virtual std::string toString() const;
+    virtual BaseAction* copyAction(Session);
 };
 
 class PrintWatchHistory : public BaseAction {
 public:
 	virtual void act (Session& sess);
 	virtual std::string toString() const;
+    virtual BaseAction* copyAction(Session);
 };
 
 
@@ -73,6 +81,7 @@ class Watch : public BaseAction {
 public:
 	virtual void act(Session& sess);
 	virtual std::string toString() const;
+    virtual BaseAction* copyAction(Session);
 };
 
 
@@ -80,11 +89,13 @@ class PrintActionsLog : public BaseAction {
 public:
 	virtual void act(Session& sess);
 	virtual std::string toString() const;
+    virtual BaseAction* copyAction(Session);
 };
 
 class Exit : public BaseAction {
 public:
 	virtual void act(Session& sess);
 	virtual std::string toString() const;
+    virtual BaseAction* copyAction(Session);
 };
 #endif
